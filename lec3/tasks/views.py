@@ -5,16 +5,16 @@ from django.urls import reverse
 
 # Create your views here.
 
-items = []
-
 
 class NewTaskForm(forms.Form):
     task = forms.CharField(label="New Task")
 
 
 def index(request):
+    if "items" not in request.session:
+        request.session["items"] = []
     return render(request, "tasks/index.html", {
-        "tasks": items
+        "tasks": request.session["items"]
     })
 
 
@@ -23,7 +23,7 @@ def add(request):
         form = NewTaskForm(request.POST)
         if form.is_valid():
             task = form.cleaned_data["task"]
-            items.append(task)
+            request.session["items"] += [task]
             return HttpResponseRedirect(reverse("tasks:index"))
         else:
             return render(request, "tasks/add.html", {
